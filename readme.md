@@ -8,5 +8,5 @@ An assembler that translates Hack assembly programs into executable Hack binary 
 git clone https://github.com/TheInvader360/hack-assembler
 cd hack-assembler
 go build
-./hack-assembler
+./hack-assembler examples/Add.asm
 ```
