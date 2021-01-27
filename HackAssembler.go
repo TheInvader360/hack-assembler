@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"sort"
 	"strings"
 
 	"github.com/TheInvader360/hack-assembler/encoder"
@@ -34,18 +33,11 @@ func main() {
 	parser.Sanitize(data)
 
 	st := symboltable.NewSymbolTable()
+	fmt.Println("First Pass Label Symbols:")
 	parser.PopulateSymbolTable(st)
 
-	keys := make([]string, 0, len(st.Map))
-	for key := range st.Map {
-		keys = append(keys, key)
-	}
-	sort.Slice(keys, func(i, j int) bool { return st.Map[keys[i]] < st.Map[keys[j]] })
-	for _, key := range keys {
-		fmt.Printf("%s, %d\n", key, st.Map[key])
-	}
-
 	encoder := encoder.NewEncoder()
+	fmt.Println("\nSecond Pass Variable Symbols:")
 	parser.Translate(encoder)
 
 	outputFilename := strings.Replace(inputFilename, ".asm", ".hack", 1)

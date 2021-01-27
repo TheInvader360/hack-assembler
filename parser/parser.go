@@ -3,6 +3,7 @@ package parser
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"strings"
 
 	"github.com/TheInvader360/hack-assembler/encoder"
@@ -41,6 +42,7 @@ func (p *Parser) PopulateSymbolTable(st *symboltable.SymbolTable) {
 			label := strings.TrimLeft(command, "(")
 			label = strings.TrimRight(label, ")")
 			st.Put(label, value)
+			fmt.Println(label, ":", value)
 		} else {
 			value++
 		}
@@ -51,9 +53,11 @@ func (p *Parser) PopulateSymbolTable(st *symboltable.SymbolTable) {
 func (p *Parser) Translate(encoder *encoder.Encoder) {
 	for _, command := range p.SourceLines {
 		if command[0] == '@' {
-			//			p.BinaryLines = append(p.BinaryLines, encoder.EncodeAddressCommand(command))
+			p.BinaryLines = append(p.BinaryLines, encoder.EncodeAddressCommand(command))
+		} else if command[0] == '(' {
+			fmt.Println(command) //TODO handle label symbols
 		} else {
-			//			p.BinaryLines = append(p.BinaryLines, encoder.EncodeComputeCommand(command))
+			p.BinaryLines = append(p.BinaryLines, encoder.EncodeComputeCommand(command))
 		}
 	}
 }
