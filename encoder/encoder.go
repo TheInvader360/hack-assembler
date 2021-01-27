@@ -10,19 +10,23 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Encoder - struct
 type Encoder struct {
 }
 
+// NewEncoder - returns a pointer to new encoder
 func NewEncoder() *Encoder {
 	return &Encoder{}
 }
 
+// EncodeAddressCommand - returns a binary encoded A-Command
 func (e *Encoder) EncodeAddressCommand(command string) string {
 	address, err := strconv.Atoi(command[1:]) // .asm files are ascii only, so getting the substring by this method is safe...
 	handler.FatalError(errors.Wrap(err, fmt.Sprintf("Invalid address: %s", command)))
 	return fmt.Sprintf("%016b", address)
 }
 
+// EncodeComputeCommand - returns a binary encoded C-Command
 func (e *Encoder) EncodeComputeCommand(command string) string {
 	// Symbolic C-Command Syntax: dest=comp;jump
 	// Binary C-Command Syntax: 111accccccdddjjj

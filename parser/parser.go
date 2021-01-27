@@ -6,17 +6,21 @@ import (
 	"strings"
 
 	"github.com/TheInvader360/hack-assembler/encoder"
+	"github.com/TheInvader360/hack-assembler/symboltable"
 )
 
+// Parser - struct
 type Parser struct {
 	SourceLines []string
 	BinaryLines []string
 }
 
+// NewParser - returns a pointer to new parser
 func NewParser() *Parser {
 	return &Parser{}
 }
 
+// Sanitize - populate SourceLines with sanitized source data (comments and whitespace removed)
 func (p *Parser) Sanitize(data []byte) {
 	scanner := bufio.NewScanner(bytes.NewReader(data))
 	for scanner.Scan() {
@@ -29,12 +33,27 @@ func (p *Parser) Sanitize(data []byte) {
 	}
 }
 
+// PopulateSymbolTable - populate symbol table with all "labels" (i.e "(xxx)" symbols)
+func (p *Parser) PopulateSymbolTable(st *symboltable.SymbolTable) {
+	value := 0
+	for _, command := range p.SourceLines {
+		if command[0] == '(' {
+			label := strings.TrimLeft(command, "(")
+			label = strings.TrimRight(label, ")")
+			st.Put(label, value)
+		} else {
+			value++
+		}
+	}
+}
+
+// Translate - populate BinaryLines with translated SourceLines
 func (p *Parser) Translate(encoder *encoder.Encoder) {
 	for _, command := range p.SourceLines {
 		if command[0] == '@' {
-			p.BinaryLines = append(p.BinaryLines, encoder.EncodeAddressCommand(command))
+			//			p.BinaryLines = append(p.BinaryLines, encoder.EncodeAddressCommand(command))
 		} else {
-			p.BinaryLines = append(p.BinaryLines, encoder.EncodeComputeCommand(command))
+			//			p.BinaryLines = append(p.BinaryLines, encoder.EncodeComputeCommand(command))
 		}
 	}
 }
