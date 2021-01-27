@@ -1,10 +1,13 @@
 package encoder
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/TheInvader360/hack-assembler/handler"
+
+	"github.com/pkg/errors"
 )
 
 type Encoder struct {
@@ -16,10 +19,7 @@ func NewEncoder() *Encoder {
 
 func (e *Encoder) EncodeAddressCommand(command string) string {
 	address, err := strconv.Atoi(command[1:]) // .asm files are ascii only, so getting the substring by this method is safe...
-	if err != nil {
-		fmt.Println("Invalid address:", command)
-		panic(err)
-	}
+	handler.FatalError(errors.Wrap(err, fmt.Sprintf("Invalid address: %s", command)))
 	return fmt.Sprintf("%016b", address)
 }
 
@@ -34,19 +34,88 @@ func (e *Encoder) EncodeComputeCommand(command string) string {
 		jump = parts[1]
 	}
 
+	dest := ""
+	comp := ""
 	parts = strings.Split(destAndComp, "=")
-	dest := parts[0]
-	comp := parts[1]
+	if len(parts) > 1 {
+		dest = parts[0]
+		comp = parts[1]
+	} else {
+		comp = parts[0]
+	}
 
-	comp, _ = lookupComp(comp) // acccccc - TODO error handling
-	dest, _ = lookupDest(dest) // ddd     - TODO error handling
-	jump, _ = lookupJump(jump) // jjj     - TODO error handling
+	comp, err := lookupComp(comp) // acccccc
+	handler.FatalError(err)
+
+	dest, err = lookupDest(dest) // ddd
+	handler.FatalError(err)
+
+	jump, err = lookupJump(jump) // jjj
+	handler.FatalError(err)
 
 	return fmt.Sprintf("111%s%s%s", comp, dest, jump)
 }
 
 func lookupComp(comp string) (string, error) {
-	return "xxxxxxx", nil //TODO
+	switch comp {
+	case "0":
+		return "0101010", nil
+	case "1":
+		return "0111111", nil
+	case "-1":
+		return "0111010", nil
+	case "D":
+		return "0001100", nil
+	case "A":
+		return "0110000", nil
+	case "!D":
+		return "0001101", nil
+	case "!A":
+		return "0110001", nil
+	case "-D":
+		return "0001111", nil
+	case "-A":
+		return "0110011", nil
+	case "D+1":
+		return "0011111", nil
+	case "A+1":
+		return "0110111", nil
+	case "D-1":
+		return "0001110", nil
+	case "A-1":
+		return "0110010", nil
+	case "D+A":
+		return "0000010", nil
+	case "D-A":
+		return "0010011", nil
+	case "A-D":
+		return "0000111", nil
+	case "D&A":
+		return "0000000", nil
+	case "D|A":
+		return "0010101", nil
+	case "M":
+		return "1110000", nil
+	case "!M":
+		return "1110001", nil
+	case "-M":
+		return "1110011", nil
+	case "M+1":
+		return "1110111", nil
+	case "M-1":
+		return "1110010", nil
+	case "D+M":
+		return "1000010", nil
+	case "D-M":
+		return "1010011", nil
+	case "M-D":
+		return "1000111", nil
+	case "D&M":
+		return "1000000", nil
+	case "D|M":
+		return "1010101", nil
+	}
+	return "", errors.New("Invalid Comp: " + comp)
 }
 
 func lookupDest(dest string) (string, error) {

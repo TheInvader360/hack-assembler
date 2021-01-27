@@ -19,7 +19,7 @@ go build
 Or:
 
 ```bash
-go run main.go examples/Add.asm
+go run HackAssembler.go examples/Add.asm
 ```
 
 The assembled binary is exported to the source directory with the same base filename but a .hack extension (so the given example would generate examples/Add.hack)

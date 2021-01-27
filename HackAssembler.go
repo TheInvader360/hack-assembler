@@ -7,7 +7,10 @@ import (
 	"strings"
 
 	"github.com/TheInvader360/hack-assembler/encoder"
+	"github.com/TheInvader360/hack-assembler/handler"
 	"github.com/TheInvader360/hack-assembler/parser"
+
+	"github.com/pkg/errors"
 )
 
 func main() {
@@ -23,10 +26,7 @@ func main() {
 	}
 
 	data, err := ioutil.ReadFile(inputFilename)
-	if err != nil {
-		fmt.Println("Can't read file:", inputFilename)
-		panic(err)
-	}
+	handler.FatalError(errors.Wrap(err, fmt.Sprintf("Can't read file: %s", inputFilename)))
 
 	parser := parser.NewParser()
 	parser.Sanitize(data)
@@ -37,8 +37,5 @@ func main() {
 	outputFilename := strings.Replace(inputFilename, ".asm", ".hack", 1)
 	output := []byte(strings.Join(parser.BinaryLines, "\n"))
 	err = ioutil.WriteFile(outputFilename, output, 0777)
-	if err != nil {
-		fmt.Println("Can't write file:", outputFilename)
-		panic(err)
-	}
+	handler.FatalError(errors.Wrap(err, fmt.Sprintf("Can't write file: %s", outputFilename)))
 }
