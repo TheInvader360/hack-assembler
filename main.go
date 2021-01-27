@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/TheInvader360/hack-assembler/encoder"
 	"github.com/TheInvader360/hack-assembler/parser"
 )
 
@@ -28,10 +29,13 @@ func main() {
 	}
 
 	parser := parser.NewParser()
-	parser.Parse(data)
+	parser.Sanitize(data)
+
+	encoder := encoder.NewEncoder()
+	parser.Translate(encoder)
 
 	outputFilename := strings.Replace(inputFilename, ".asm", ".hack", 1)
-	output := []byte(strings.Join(parser.Lines, "\n"))
+	output := []byte(strings.Join(parser.BinaryLines, "\n"))
 	err = ioutil.WriteFile(outputFilename, output, 0777)
 	if err != nil {
 		fmt.Println("Can't write file:", outputFilename)
