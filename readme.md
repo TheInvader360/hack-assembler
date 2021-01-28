@@ -2,6 +2,8 @@
 
 An assembler that translates Hack assembly programs into executable Hack binary code (nand2tetris)
 
+![demo.gif](demo.gif)
+
 ### Usage
 
 ```bash
