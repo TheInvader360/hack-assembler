@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/TheInvader360/hack-assembler/encoder"
@@ -34,8 +35,8 @@ func (p *Parser) Sanitize(data []byte) {
 	}
 }
 
-// PopulateSymbolTable - populate symbol table with all "labels" (i.e "(xxx)" symbols)
-func (p *Parser) PopulateSymbolTable(st *symboltable.SymbolTable) {
+// PopulateSymbolTableLables - populate symbol table with all "labels" (i.e "(xxx)" symbols)
+func (p *Parser) PopulateSymbolTableLables(st *symboltable.SymbolTable) {
 	value := 0
 	for _, command := range p.SourceLines {
 		if command[0] == '(' {
@@ -50,12 +51,26 @@ func (p *Parser) PopulateSymbolTable(st *symboltable.SymbolTable) {
 }
 
 // Translate - populate BinaryLines with translated SourceLines
-func (p *Parser) Translate(encoder *encoder.Encoder) {
+func (p *Parser) Translate(st *symboltable.SymbolTable, encoder *encoder.Encoder) {
+	n := 16
 	for _, command := range p.SourceLines {
 		if command[0] == '@' {
-			p.BinaryLines = append(p.BinaryLines, encoder.EncodeAddressCommand(command))
+			value, err := strconv.Atoi(command[1:]) // .asm files are ascii only, so getting the substring by this method is safe...
+			if err != nil {
+				// couldn't parse as an int, so it's safe to assume that this is a @symbol command
+				symbol := command[1:]
+				if st.Contains(symbol) {
+					value = st.Get(symbol)
+				} else {
+					st.Put(symbol, n)
+					value = n
+					n++
+				}
+				fmt.Println(symbol, value)
+			}
+			p.BinaryLines = append(p.BinaryLines, fmt.Sprintf("%016b", value))
 		} else if command[0] == '(' {
-			fmt.Println(command) //TODO handle label symbols
+			fmt.Println(command)
 		} else {
 			p.BinaryLines = append(p.BinaryLines, encoder.EncodeComputeCommand(command))
 		}

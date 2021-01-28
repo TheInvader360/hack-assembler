@@ -2,7 +2,6 @@ package encoder
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/TheInvader360/hack-assembler/handler"
@@ -17,16 +16,6 @@ type Encoder struct {
 // NewEncoder - returns a pointer to new encoder
 func NewEncoder() *Encoder {
 	return &Encoder{}
-}
-
-// EncodeAddressCommand - returns a binary encoded A-Command
-func (e *Encoder) EncodeAddressCommand(command string) string {
-	address, err := strconv.Atoi(command[1:]) // .asm files are ascii only, so getting the substring by this method is safe...
-	//handler.FatalError(errors.Wrap(err, fmt.Sprintf("Invalid address: %s", command)))
-	if err != nil {
-		fmt.Println(command) //TODO handle variable symbols...
-	}
-	return fmt.Sprintf("%016b", address)
 }
 
 // EncodeComputeCommand - returns a binary encoded C-Command

@@ -34,11 +34,11 @@ func main() {
 
 	st := symboltable.NewSymbolTable()
 	fmt.Println("First Pass Label Symbols:")
-	parser.PopulateSymbolTable(st)
+	parser.PopulateSymbolTableLables(st)
 
 	encoder := encoder.NewEncoder()
 	fmt.Println("\nSecond Pass Variable Symbols:")
-	parser.Translate(encoder)
+	parser.Translate(st, encoder)
 
 	outputFilename := strings.Replace(inputFilename, ".asm", ".hack", 1)
 	output := []byte(strings.Join(parser.BinaryLines, "\n"))
