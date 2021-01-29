@@ -14,13 +14,6 @@ cd hack-assembler
 Then:
 
 ```bash
-go build
-./hack-assembler examples/Add.asm
-```
-
-Or:
-
-```bash
 go run HackAssembler.go examples/Add.asm
 ```
 

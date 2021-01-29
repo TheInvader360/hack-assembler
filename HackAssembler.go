@@ -6,10 +6,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/TheInvader360/hack-assembler/encoder"
+	encoderimpl "github.com/TheInvader360/hack-assembler/encoder/impl"
 	"github.com/TheInvader360/hack-assembler/handler"
 	"github.com/TheInvader360/hack-assembler/parser"
-	"github.com/TheInvader360/hack-assembler/symboltable"
+	symbolsimpl "github.com/TheInvader360/hack-assembler/symbols/impl"
 
 	"github.com/pkg/errors"
 )
@@ -32,13 +32,14 @@ func main() {
 	parser := parser.NewParser()
 	parser.Sanitize(data)
 
-	st := symboltable.NewSymbolTable()
+	s := symbolsimpl.NewSymbols()
+	s.Seed()
 	fmt.Println("First Pass Label Symbols:")
-	parser.PopulateSymbolTableLables(st)
+	parser.PopulateSymbolsMapWithLables(s)
 
-	encoder := encoder.NewEncoder()
+	e := encoderimpl.NewEncoder()
 	fmt.Println("\nSecond Pass Variable Symbols:")
-	parser.Translate(st, encoder)
+	parser.Translate(s, e)
 
 	outputFilename := strings.Replace(inputFilename, ".asm", ".hack", 1)
 	output := []byte(strings.Join(parser.BinaryLines, "\n"))

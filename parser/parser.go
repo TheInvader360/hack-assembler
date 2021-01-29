@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/TheInvader360/hack-assembler/encoder"
-	"github.com/TheInvader360/hack-assembler/symboltable"
+	"github.com/TheInvader360/hack-assembler/symbols"
 )
 
 // Parser - struct
@@ -35,14 +35,14 @@ func (p *Parser) Sanitize(data []byte) {
 	}
 }
 
-// PopulateSymbolTableLables - populate symbol table with all "labels" (i.e "(xxx)" symbols)
-func (p *Parser) PopulateSymbolTableLables(st *symboltable.SymbolTable) {
+// PopulateSymbolsMapWithLables - populate symbols map with all "labels" (i.e "(xxx)" symbols)
+func (p *Parser) PopulateSymbolsMapWithLables(s symbols.Symbols) {
 	value := 0
 	for _, command := range p.SourceLines {
 		if command[0] == '(' {
 			label := strings.TrimLeft(command, "(")
 			label = strings.TrimRight(label, ")")
-			st.Put(label, value)
+			s.Put(label, value)
 			fmt.Println(label, ":", value)
 		} else {
 			value++
@@ -51,7 +51,7 @@ func (p *Parser) PopulateSymbolTableLables(st *symboltable.SymbolTable) {
 }
 
 // Translate - populate BinaryLines with translated SourceLines
-func (p *Parser) Translate(st *symboltable.SymbolTable, encoder *encoder.Encoder) {
+func (p *Parser) Translate(s symbols.Symbols, encoder encoder.Encoder) {
 	n := 16
 	for _, command := range p.SourceLines {
 		if command[0] == '@' {
@@ -59,10 +59,10 @@ func (p *Parser) Translate(st *symboltable.SymbolTable, encoder *encoder.Encoder
 			if err != nil {
 				// couldn't parse as an int, so it's safe to assume that this is a @symbol command
 				symbol := command[1:]
-				if st.Contains(symbol) {
-					value = st.Get(symbol)
+				if s.Contains(symbol) {
+					value = s.Get(symbol)
 				} else {
-					st.Put(symbol, n)
+					s.Put(symbol, n)
 					value = n
 					n++
 				}
